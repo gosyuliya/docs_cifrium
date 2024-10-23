@@ -28,13 +28,11 @@ exclude_patterns = []
 
 language = 'ru'
 
-html_static_path = ['_static']
-
 # html_theme = 'sphinx_rtd_theme'
 html_theme = "djangodocs"
 html_theme_path = ["_theme"]
 
 html_last_updated_fmt = "%b %d, %Y"
 
-html_theme = 'alabaster'
+# html_theme = 'alabaster'
 html_static_path = ['_static']
