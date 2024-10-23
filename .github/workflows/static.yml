@@ -1,27 +1,30 @@
-name: documentation
+name: build documentation and publish
 
-on: [push, pull_request, workflow_dispatch]
-
-permissions:
-  contents: write
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  docs:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-      - name: Sphinx build
-        run: |
-          sphinx-build doc _build
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
         with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
-          force_orphan: true
+          python-version: '3.9'
+      - run: pip install -r requirements.txt
+      - name: build documentation
+        run: make html
+      - run: touch _build/html/.nojekyll
+      - uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: '_build/html'
+          destination-github-username: 'cpina'
+          destination-repository-name: 'push-to-another-repository-docs'
+          user-email: carles@pina.cat
+          target-branch: gh-pages
+          target-directory: docs
